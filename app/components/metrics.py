@@ -67,7 +67,7 @@ class MetricsComponent:
                             ytd_sales: float,
                             yoy_data: dict) -> None:
         """
-        Renderiza métricas específicas de vendas.
+        Renderiza métricas específicas de vendas (quantidade).
         
         Args:
             total_sales: Total de vendas no período
@@ -77,31 +77,31 @@ class MetricsComponent:
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            self.render_metric_card(
+            # Formatar sem R$ e sem casas decimais
+            formatted_value = f"{total_sales:,.0f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+            st.metric(
                 label="💰 Vendas Totais Acumuladas",
-                value=total_sales,
-                prefix="R$ ",
-                help_text="Soma total de vendas no período selecionado"
+                value=formatted_value,
+                help="Soma total de vendas no período selecionado"
             )
         
         with col2:
-            self.render_metric_card(
+            # Formatar sem R$ e sem casas decimais
+            formatted_value = f"{ytd_sales:,.0f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+            st.metric(
                 label="📅 Vendas YTD",
-                value=ytd_sales,
-                prefix="R$ ",
-                help_text="Acumulado de vendas do ano corrente até a data atual"
+                value=formatted_value,
+                help="Acumulado de vendas do ano corrente até a data atual"
             )
         
         with col3:
             yoy_percentage = yoy_data.get('percentage', 0)
-            delta_color = "normal" if yoy_percentage >= 0 else "inverse"
             
-            self.render_metric_card(
+            st.metric(
                 label="📊 Variação YoY",
-                value=yoy_percentage,
-                suffix="%",
+                value=f"{yoy_percentage:,.0f}%",
                 delta_color="off",
-                help_text="Percentual de diferença entre YTD atual vs. YTD ano anterior"
+                help="Percentual de diferença entre YTD atual vs. YTD ano anterior"
             )
     
     def render_revenue_metrics(self,

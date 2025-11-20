@@ -135,25 +135,42 @@ class ChartComponent:
             df: DataFrame com dados agregados
             show_by_store: Se True, mostra uma linha por loja
         """
-        if show_by_store and 'loja' in df.columns:
-            self.render_line_chart(
-                df=df,
-                x_column='data',
-                y_column='quantidade',
-                color_column='loja',
-                title="📈 Evolução de Vendas Semanais",
-                x_label="Período",
-                y_label="Quantidade Vendida"
+        if df.empty:
+            st.warning("⚠️ Não há dados disponíveis para exibir no gráfico.")
+            return
+        
+        fig = px.line(
+            df,
+            x='data',
+            y='quantidade',
+            color='loja' if show_by_store and 'loja' in df.columns else None,
+            title="📈 Evolução de Vendas Semanais",
+            labels={
+                'data': "Período",
+                'quantidade': "Quantidade Vendida"
+            },
+            color_discrete_sequence=self.default_colors
+        )
+        
+        fig.update_layout(
+            hovermode='x unified',
+            height=500,
+            showlegend=True,
+            legend=dict(
+                orientation="h",
+                yanchor="bottom",
+                y=1.02,
+                xanchor="right",
+                x=1
             )
-        else:
-            self.render_line_chart(
-                df=df,
-                x_column='data',
-                y_column='quantidade',
-                title="📈 Evolução de Vendas Semanais",
-                x_label="Período",
-                y_label="Quantidade Vendida"
-            )
+        )
+        
+        fig.update_traces(
+            mode='lines+markers',
+            hovertemplate='%{y:,.0f}<extra></extra>'  # Sem casas decimais para quantidade
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
     
     def render_revenue_trend_chart(self,
                                   df: pd.DataFrame,
